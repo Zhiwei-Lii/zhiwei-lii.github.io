@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+  <meta http-equiv="X-Clacks-Overhead" content="GNU Terry Pratchett" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="shortcut icon" href="https://example.com/images/favicon.png" />
+<title>Swiftshader简介 | Hugo ʕ•ᴥ•ʔ Bear Blog</title>
+<meta name="title" content="Swiftshader简介" />
+<meta name="description" content="Swiftshader是Google推出的OpenGL的软件实现. 它的机制和VM差不多, 可以动态地将shader翻译成cpu指令.
+下图是它的架构, 主要有三层:
+ Renderer: 负责将Shader中的操作转化为Reactor的调用. Reactor: 一种中间语言，主要就是包装了一下LLVM的调用. LLVM: Swiftshader底层通过LLVM来生成machine code.   本文分为三个部分:
+ Reactor Layer Introduction Renderer Layer Introduction Debug Tips  Reactor Layer Introduction Reactor是一种中间语言, 可以嵌入在C&#43;&#43;中使用. 它的语法参见Reactor.md
+Reactor里定义了很多数据类型:
+// src/Reactor/Reactor.hpp class Bool; ... class Short8; class UShort8; ... class Int4; class UInt4; ... class Float4; 可以使用RR_WATCH(variable_name)的形式来print Reactor变量. 前提是在CMakeList.txt中定义ENABLE_RR_PRINT
+// src/Reactor/Print.hpp // RR_WATCH() is a helper that prints the name and value of all the supplied // arguments." />
+<meta name="keywords" content="" />
+
+
+<meta property="og:title" content="Swiftshader简介" />
+<meta property="og:description" content="Swiftshader是Google推出的OpenGL的软件实现. 它的机制和VM差不多, 可以动态地将shader翻译成cpu指令.
+下图是它的架构, 主要有三层:
+ Renderer: 负责将Shader中的操作转化为Reactor的调用. Reactor: 一种中间语言，主要就是包装了一下LLVM的调用. LLVM: Swiftshader底层通过LLVM来生成machine code.   本文分为三个部分:
+ Reactor Layer Introduction Renderer Layer Introduction Debug Tips  Reactor Layer Introduction Reactor是一种中间语言, 可以嵌入在C&#43;&#43;中使用. 它的语法参见Reactor.md
+Reactor里定义了很多数据类型:
+// src/Reactor/Reactor.hpp class Bool; ... class Short8; class UShort8; ... class Int4; class UInt4; ... class Float4; 可以使用RR_WATCH(variable_name)的形式来print Reactor变量. 前提是在CMakeList.txt中定义ENABLE_RR_PRINT
+// src/Reactor/Print.hpp // RR_WATCH() is a helper that prints the name and value of all the supplied // arguments." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://example.com/swiftshader%E7%AE%80%E4%BB%8B/" /><meta property="og:image" content="https://example.com/images/share.png"/><meta property="article:section" content="blog" />
+<meta property="article:published_time" content="2020-08-30T13:50:36+08:00" />
+<meta property="article:modified_time" content="2020-08-30T13:50:36+08:00" /><meta property="og:site_name" content="Hugo ʕ•ᴥ•ʔ Bear" />
+
+
+
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://example.com/images/share.png"/>
+
+<meta name="twitter:title" content="Swiftshader简介"/>
+<meta name="twitter:description" content="Swiftshader是Google推出的OpenGL的软件实现. 它的机制和VM差不多, 可以动态地将shader翻译成cpu指令.
+下图是它的架构, 主要有三层:
+ Renderer: 负责将Shader中的操作转化为Reactor的调用. Reactor: 一种中间语言，主要就是包装了一下LLVM的调用. LLVM: Swiftshader底层通过LLVM来生成machine code.   本文分为三个部分:
+ Reactor Layer Introduction Renderer Layer Introduction Debug Tips  Reactor Layer Introduction Reactor是一种中间语言, 可以嵌入在C&#43;&#43;中使用. 它的语法参见Reactor.md
+Reactor里定义了很多数据类型:
+// src/Reactor/Reactor.hpp class Bool; ... class Short8; class UShort8; ... class Int4; class UInt4; ... class Float4; 可以使用RR_WATCH(variable_name)的形式来print Reactor变量. 前提是在CMakeList.txt中定义ENABLE_RR_PRINT
+// src/Reactor/Print.hpp // RR_WATCH() is a helper that prints the name and value of all the supplied // arguments."/>
+
+
+
+<meta itemprop="name" content="Swiftshader简介">
+<meta itemprop="description" content="Swiftshader是Google推出的OpenGL的软件实现. 它的机制和VM差不多, 可以动态地将shader翻译成cpu指令.
+下图是它的架构, 主要有三层:
+ Renderer: 负责将Shader中的操作转化为Reactor的调用. Reactor: 一种中间语言，主要就是包装了一下LLVM的调用. LLVM: Swiftshader底层通过LLVM来生成machine code.   本文分为三个部分:
+ Reactor Layer Introduction Renderer Layer Introduction Debug Tips  Reactor Layer Introduction Reactor是一种中间语言, 可以嵌入在C&#43;&#43;中使用. 它的语法参见Reactor.md
+Reactor里定义了很多数据类型:
+// src/Reactor/Reactor.hpp class Bool; ... class Short8; class UShort8; ... class Int4; class UInt4; ... class Float4; 可以使用RR_WATCH(variable_name)的形式来print Reactor变量. 前提是在CMakeList.txt中定义ENABLE_RR_PRINT
+// src/Reactor/Print.hpp // RR_WATCH() is a helper that prints the name and value of all the supplied // arguments."><meta itemprop="datePublished" content="2020-08-30T13:50:36+08:00" />
+<meta itemprop="dateModified" content="2020-08-30T13:50:36+08:00" />
+<meta itemprop="wordCount" content="482"><meta itemprop="image" content="https://example.com/images/share.png"/>
+<meta itemprop="keywords" content="" />
+<meta name="referrer" content="no-referrer-when-downgrade" />
+
+  <style>
+  body {
+    font-family: Verdana, sans-serif;
+    margin: auto;
+    padding: 20px;
+    max-width: 720px;
+    text-align: left;
+    background-color: #fff;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.5;
+    color: #444;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  strong,
+  b {
+    color: #222;
+  }
+
+  a {
+    color: #3273dc;
+     
+  }
+
+  .title {
+    text-decoration: none;
+    border: 0;
+  }
+
+  .title span {
+    font-weight: 400;
+  }
+
+  nav a {
+    margin-right: 10px;
+  }
+
+  textarea {
+    width: 100%;
+    font-size: 16px;
+  }
+
+  input {
+    font-size: 16px;
+  }
+
+  content {
+    line-height: 1.6;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  code {
+    padding: 2px 5px;
+    background-color: #f2f2f2;
+  }
+
+  pre code {
+    color: #222;
+    display: block;
+    padding: 20px;
+    white-space: pre-wrap;
+    font-size: 14px;
+    overflow-x: auto;
+  }
+
+  div.highlight pre {
+    background-color: initial;
+    color: initial;
+  }
+
+  div.highlight code {
+    background-color: unset;
+    color: unset;
+  }
+
+  blockquote {
+    border-left: 1px solid #999;
+    color: #222;
+    padding-left: 20px;
+    font-style: italic;
+  }
+
+  footer {
+    padding: 25px;
+    text-align: center;
+  }
+
+  .helptext {
+    color: #777;
+    font-size: small;
+  }
+
+  .errorlist {
+    color: #eba613;
+    font-size: small;
+  }
+
+   
+  ul.blog-posts {
+    list-style-type: none;
+    padding: unset;
+  }
+
+  ul.blog-posts li {
+    display: flex;
+  }
+
+  ul.blog-posts li span {
+    flex: 0 0 130px;
+  }
+
+  ul.blog-posts li a:visited {
+    color: #8b6fcb;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      background-color: #333;
+      color: #ddd;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    strong,
+    b {
+      color: #eee;
+    }
+
+    a {
+      color: #8cc2dd;
+    }
+
+    code {
+      background-color: #777;
+    }
+
+    pre code {
+      color: #ddd;
+    }
+
+    blockquote {
+      color: #ccc;
+    }
+
+    textarea,
+    input {
+      background-color: #252525;
+      color: #ddd;
+    }
+
+    .helptext {
+      color: #aaa;
+    }
+  }
+
+</style>
+
+</head>
+
+<body>
+  <header><a href="/" class="title">
+  <h2>Hugo ʕ•ᴥ•ʔ Bear Blog</h2>
+</a>
+<nav><a href="/">Home</a>
+
+
+<a href="/blog">Blog</a>
+
+</nav>
+</header>
+  <main>
+
+<h1>Swiftshader简介</h1>
+<p>
+  <i>
+    <time datetime='2020-08-30' pubdate>
+      30 Aug, 2020
+    </time>
+  </i>
+</p>
+
+<content>
+  <p>Swiftshader是Google推出的OpenGL的软件实现.
+它的机制和VM差不多, 可以动态地将shader翻译成cpu指令.</p>
+<p>下图是它的架构, 主要有三层:</p>
+<ol>
+<li>Renderer: 负责将Shader中的操作转化为Reactor的调用.</li>
+<li>Reactor: 一种中间语言，主要就是包装了一下LLVM的调用.</li>
+<li>LLVM: Swiftshader底层通过LLVM来生成machine code.
+<img src="/images/post_4/16134950-404adada39aaa98a.png" alt="Architecture.png"></li>
+</ol>
+<p>本文分为三个部分:</p>
+<ul>
+<li>Reactor Layer Introduction</li>
+<li>Renderer Layer Introduction</li>
+<li>Debug Tips</li>
+</ul>
+<h1 id="reactor-layer-introduction">Reactor Layer Introduction</h1>
+<p>Reactor是一种中间语言, 可以嵌入在C++中使用.
+它的语法参见<a href="%5Bhttps://github.com/google/swiftshader/blob/master/docs/Reactor.md%5D(https://github.com/google/swiftshader/blob/master/docs/Reactor.md)">Reactor.md</a></p>
+<p>Reactor里定义了很多数据类型:</p>
+<pre tabindex="0"><code>// src/Reactor/Reactor.hpp
+class Bool;
+...
+class Short8;
+class UShort8;
+...
+class Int4;
+class UInt4;
+...
+class Float4;
+</code></pre><p>可以使用RR_WATCH(variable_name)的形式来print Reactor变量.
+前提是在CMakeList.txt中定义ENABLE_RR_PRINT</p>
+<pre tabindex="0"><code>// src/Reactor/Print.hpp
+
+// RR_WATCH() is a helper that prints the name and value of all the supplied
+// arguments.
+// For example, if you had the Int and bool variables 'foo' and 'bar' that
+// you want to print, you can simply write:
+//    RR_WATCH(foo, bar)
+// When this JIT compiled code is executed, it will print the string
+// &quot;foo: 1, bar: true&quot; to stdout.
+//
+// RR_WATCH() is intended to be used for debugging JIT compiled code, and
+// is not intended for production use.
+#	define RR_WATCH(...) RR_LOG(RR_WATCH_FMT(__VA_ARGS__), __VA_ARGS__)
+</code></pre><p>与LLVM的接口主要在src/Reactor/LLVMReactor.cpp</p>
+<p>需要注意的是: Renderer Layer里对它的调用都会生成machine code, 但这些machine code并不会立刻执行, 而是作为data存在的. 只有当swiftshader将程序入口指到这些code的时候，它们才会执行.</p>
+<h1 id="renderer-layer-introduciton">Renderer Layer Introduciton</h1>
+<p>它处理图像的时候大致会经历三个步骤:</p>
+<ol>
+<li>VertexRoutine</li>
+<li>SetupRoutine</li>
+<li>PixelRoutine</li>
+</ol>
+<pre tabindex="0"><code>// src/Render/Render.cpp
+	void Renderer::draw(DrawType drawType, unsigned int indexOffset, unsigned int count, bool update)
+</code></pre><p>VertexRoutine: 用于处理顶点变换.</p>
+<p>SetupRoutine: 根据顶点建立平面方程. 比如说根据三角形的三点来构建一个三角形的平面方程. Pixel Routine会根据平面方程来分别处理不同的pixel.</p>
+<p>PixelRoutine: 计算pixel color, 并写入frame buffer.
+PixelRoutine可以细分为三个主要步骤:
+(a) interpolate: 将pixel shader的输入参数根据平面方程做插值
+(b) apply shader: 执行pixel shader中的算子
+(c) write color: 将数据写入frame buffer</p>
+<p>PixelRoutine的处理逻辑可以参见:</p>
+<pre tabindex="0"><code>//  src/Shader/PixelRoutine.cpp
+	void PixelRoutine::quad(Pointer&lt;Byte&gt; cBuffer[RENDERTARGETS], Pointer&lt;Byte&gt; &amp;zBuffer, Pointer&lt;Byte&gt; &amp;sBuffer, Int cMask[4], Int &amp;x)
+	{
+
+...
+        // 这里将1个pixel的x扩展成4个pixel的x
+		Float4 xxxx = Float4(Float(x)) + *Pointer&lt;Float4&gt;(primitive + OFFSET(Primitive,xQuad), 16);
+
+...
+		If(depthPass || Bool(!earlyDepthTest))
+		{
+...
+            // 这里将1个pixel的y扩展成4个pixel的y
+			Float4 yyyy = Float4(Float(y)) + *Pointer&lt;Float4&gt;(primitive + OFFSET(Primitive,yQuad), 16);
+...
+			for(int interpolant = 0; interpolant &lt; MAX_FRAGMENT_INPUTS; interpolant++)
+			{
+				for(int component = 0; component &lt; 4; component++)
+				{
+					if(state.interpolant[interpolant].component &amp; (1 &lt;&lt; component))
+					{
+						if(!state.interpolant[interpolant].centroid)
+						{
+							v[interpolant][component] = interpolate(xxxx, Dv[interpolant][component], rhw, primitive + OFFSET(Primitive, V[interpolant][component]), (state.interpolant[interpolant].flat &amp; (1 &lt;&lt; component)) != 0, state.perspective, false);
+						}
+						else
+						{
+							v[interpolant][component] = interpolateCentroid(XXXX, YYYY, rhwCentroid, primitive + OFFSET(Primitive, V[interpolant][component]), (state.interpolant[interpolant].flat &amp; (1 &lt;&lt; component)) != 0, state.perspective);
+						}
+					}
+				}
+...
+
+			if(colorUsed())
+			{
+...
+				applyShader(cMask);
+...
+			}
+
+			If(alphaPass)
+			{
+...
+					if(colorUsed())
+					{
+...
+						rasterOperation(f, cBuffer, x, sMask, zMask, cMask);
+					}
+				}
+...
+			}
+		}
+...
+	}
+</code></pre><p>xQuad和yQuad会在SetupRoutine里进行初始化:</p>
+<pre tabindex="0"><code>// src/Shader/SetupRoutine.cpp
+			Float4 xQuad = Float4(0, 1, 0, 1) - Float4(dx);
+			Float4 yQuad = Float4(0, 0, 1, 1) - Float4(dy);
+</code></pre><p>Swiftshaer使用Vector4f存放4个pixel的rgba.
+Float4里面存放了1个pixel的(r, r, r, r) or (g, g, g, g) or (b, b, b, b) or (a, a, a, a). 明白了这一点, code会容易理解很多.</p>
+<h1 id="debug-tips">Debug Tips:</h1>
+<ol>
+<li>Profile switch of PixelRoutine</li>
+</ol>
+<pre tabindex="0"><code>// src/Main/Config.hpp
+#define PERF_PROFILE 0   // Profile various pipeline stages and display the timing in SwiftConfig
+</code></pre><ol start="2">
+<li>Dump llvm&rsquo;s IR</li>
+</ol>
+<pre tabindex="0"><code>// src/Reactor/LLVMReactor.cpp
+		if(false)
+		{
+			std::error_code error;
+			llvm::raw_fd_ostream file(std::string(name) + &quot;-llvm-dump-unopt.txt&quot;, error);
+			jit-&gt;module-&gt;print(file, 0);
+		}
+</code></pre><ol start="3">
+<li>Print shader</li>
+</ol>
+<pre tabindex="0"><code>// src/OpenGL/libGLESv2/Shader.cpp
+	if(false)
+	{
+		static int serial = 1;
+
+		if(false)
+		{
+			char buffer[256];
+			sprintf(buffer, &quot;shader-input-%d-%d.txt&quot;, getName(), serial);
+			FILE *file = fopen(buffer, &quot;wt&quot;);
+			fprintf(file, &quot;%s&quot;, mSource);
+			fclose(file);
+		}
+
+		getShader()-&gt;print(&quot;shader-output-%d-%d.txt&quot;, getName(), serial);
+
+		serial++;
+	}
+</code></pre><ol start="4">
+<li>Settings of Swiftshader
+Swiftshader提供了很多配置, 包括图像质量/线程数量/优化等级等等, 这些都会极大地影响性能</li>
+</ol>
+<pre tabindex="0"><code>// Swiftshader.ini
+...
+
+[Quality]
+TextureSampleQuality=2
+MipmapQuality=1
+PerspectiveCorrection=1
+TranscendentalPrecision=2
+TransparencyAntialiasing=0
+
+[Processor]
+ThreadCount=0
+EnableSSE3=1
+EnableSSSE3=1
+EnableSSE4_1=1
+
+[Optimization]
+OptimizationPass1=1
+OptimizationPass2=0
+OptimizationPass3=0
+OptimizationPass4=0
+OptimizationPass5=0
+OptimizationPass6=0
+OptimizationPass7=0
+OptimizationPass8=0
+OptimizationPass9=0
+OptimizationPass10=0
+...
+</code></pre>
+</content>
+<p>
+  
+</p>
+
+  </main>
+  <footer>Made with <a href="https://github.com/janraasch/hugo-bearblog/">Hugo ʕ•ᴥ•ʔ Bear</a>
+</footer>
+
+    
+</body>
+
+</html>

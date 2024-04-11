@@ -2,18 +2,18 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Blog on Hugo ʕ•ᴥ•ʔ Bear Blog</title>
-    <link>https://miseeeeen.github.io/blog/</link>
+    <link>https://zhiwei-lii.github.io/blog/</link>
     <description>Recent content in Blog on Hugo ʕ•ᴥ•ʔ Bear Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-US</language>
     <copyright>Copyright © 2020, Jane Doe.</copyright>
-    <lastBuildDate>Sun, 30 Aug 2020 13:50:36 +0800</lastBuildDate><atom:link href="https://miseeeeen.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Sun, 30 Aug 2020 13:50:36 +0800</lastBuildDate><atom:link href="https://zhiwei-lii.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Intel RDT简介</title>
-      <link>https://miseeeeen.github.io/intel-rdt%E7%AE%80%E4%BB%8B/</link>
+      <link>https://zhiwei-lii.github.io/intel-rdt%E7%AE%80%E4%BB%8B/</link>
       <pubDate>Sun, 30 Aug 2020 13:50:36 +0800</pubDate>
       
-      <guid>https://miseeeeen.github.io/intel-rdt%E7%AE%80%E4%BB%8B/</guid>
+      <guid>https://zhiwei-lii.github.io/intel-rdt%E7%AE%80%E4%BB%8B/</guid>
       <description>RDT要解决的就是: cache level的资源隔离. 我们先看一下noisy neighbour问题.
 Noisy Neighbor问题 在目前Server的硬件架构中, 遵循以下规则:
  每个logical core独享L1 cache (L1又被进一步地分为icache, dcache) 每个physical core(对应两个logical core)共享L2 cache 每个socket的core共享L3 cache  这就有可能引发noisy neighbor问题. 如下图, 分别有两个application, 由于L3是共享的, 同时遵循&amp;quot;先到先得&amp;quot;的原则, App[1]只有少量的L3 cache可以利用, 这对于它的性能无疑是不利的. RDT分为5个功能模块： Cache Monitoring Technology (CMT) 缓存检测技术 Cache Allocation Technology (CAT) 缓存分配技术 Memory Bandwidth Monitoring (MBM) 内存带宽监测 Memory Bandwidth Allocation (MBA) 内存带宽分配 Code and Data Prioritization (CDP) 代码和数据优先级
@@ -23,10 +23,10 @@ Cache Allocation Technology (CAT) RDT中定义了clos的概念, 可以将它类�
     
     <item>
       <title>Swiftshader简介</title>
-      <link>https://miseeeeen.github.io/swiftshader%E7%AE%80%E4%BB%8B/</link>
+      <link>https://zhiwei-lii.github.io/swiftshader%E7%AE%80%E4%BB%8B/</link>
       <pubDate>Sun, 30 Aug 2020 13:50:36 +0800</pubDate>
       
-      <guid>https://miseeeeen.github.io/swiftshader%E7%AE%80%E4%BB%8B/</guid>
+      <guid>https://zhiwei-lii.github.io/swiftshader%E7%AE%80%E4%BB%8B/</guid>
       <description>Swiftshader是Google推出的OpenGL的软件实现. 它的机制和VM差不多, 可以动态地将shader翻译成cpu指令.
 下图是它的架构, 主要有三层:
  Renderer: 负责将Shader中的操作转化为Reactor的调用. Reactor: 一种中间语言，主要就是包装了一下LLVM的调用. LLVM: Swiftshader底层通过LLVM来生成machine code.   本文分为三个部分:
@@ -38,19 +38,19 @@ Reactor里定义了很多数据类型:
     
     <item>
       <title>Android PGO Guide</title>
-      <link>https://miseeeeen.github.io/android-pgo-guide/</link>
+      <link>https://zhiwei-lii.github.io/android-pgo-guide/</link>
       <pubDate>Fri, 10 Apr 2020 13:50:36 +0800</pubDate>
       
-      <guid>https://miseeeeen.github.io/android-pgo-guide/</guid>
+      <guid>https://zhiwei-lii.github.io/android-pgo-guide/</guid>
       <description>Part 1 采集数据  在fio的Android.bp加入下面的code.  pgo: { instrumentation: true, benchmarks: [ &amp;quot;fio&amp;quot;, // benchmarks可以理解为当前优化的workload的名字. ], profile_file: &amp;quot;fio.profdata&amp;quot;, // fio.profdata表示会去toolchain/pgo-profiles下面寻找该文件. } make fio ANDROID_PGO_INSTRUMENT=fio 运行binary/library, 它会在/data/local/tmp下面生成profraw的文件  # build/soong/cc/pgo.go const profileInstrumentFlag = &amp;quot;-fprofile-generate=/data/local/tmp&amp;quot; llvm-profdata merge -output=fio.profdata default_xxxxxx.profraw 注意llvm-profdata需要用Android prebuild的版本, 位于./prebuilts/clang/host/ llvm-profdata show -all-functions fio.profdata // 可以dump profile信息, 可以通过function id将default_xxx.profraw和具体的library/binary对应起来.  Part 2 使用profile来优化  把profdata放到toolchain/pgo-profiles make fio // 不设置ANDROID_PGO_INSTRUMENT的话, 它就不会插入profile的代码. run  PS:  进程会在exit的时候dump profile, 收到signal 9的时候并不会dump. 所以如果是要优化长期存在的service, 需要做些hack.  # external/compiler-rt/lib/profile/InstrProfilingFile.</description>
     </item>
     
     <item>
       <title>Android Art里的JIT&amp;AOT</title>
-      <link>https://miseeeeen.github.io/android-art%E9%87%8C%E7%9A%84jitaot/</link>
+      <link>https://zhiwei-lii.github.io/android-art%E9%87%8C%E7%9A%84jitaot/</link>
       <pubDate>Mon, 10 Feb 2020 13:50:36 +0800</pubDate>
       
-      <guid>https://miseeeeen.github.io/android-art%E9%87%8C%E7%9A%84jitaot/</guid>
+      <guid>https://zhiwei-lii.github.io/android-art%E9%87%8C%E7%9A%84jitaot/</guid>
       <description>简单介绍一下Art里的jit和aot. 本文分成三个部分:
  JIT Introduction AOT Introduction Relation between JIT&amp;amp;AOT  JIT Introduction JIT这里没有看太多的内容，先占个位:D
 ####Profile文件 Art会在app执行过程中对它做profiling, 记录hot method等优化信息, profiling的结果会存在storage当中, 以便下次执行的时候供art参考.
@@ -60,10 +60,10 @@ profile的文件格式如下:
     
     <item>
       <title>Android处理Move事件时为何要等待vsync</title>
-      <link>https://miseeeeen.github.io/android%E5%A4%84%E7%90%86move%E4%BA%8B%E4%BB%B6%E6%97%B6%E4%B8%BA%E4%BD%95%E8%A6%81%E7%AD%89%E5%BE%85vsync/</link>
+      <link>https://zhiwei-lii.github.io/android%E5%A4%84%E7%90%86move%E4%BA%8B%E4%BB%B6%E6%97%B6%E4%B8%BA%E4%BD%95%E8%A6%81%E7%AD%89%E5%BE%85vsync/</link>
       <pubDate>Mon, 10 Feb 2020 13:50:36 +0800</pubDate>
       
-      <guid>https://miseeeeen.github.io/android%E5%A4%84%E7%90%86move%E4%BA%8B%E4%BB%B6%E6%97%B6%E4%B8%BA%E4%BD%95%E8%A6%81%E7%AD%89%E5%BE%85vsync/</guid>
+      <guid>https://zhiwei-lii.github.io/android%E5%A4%84%E7%90%86move%E4%BA%8B%E4%BB%B6%E6%97%B6%E4%B8%BA%E4%BD%95%E8%A6%81%E7%AD%89%E5%BE%85vsync/</guid>
       <description>根据https://www.jianshu.com/p/c2e26c6d4ac1 Android处理down的时候是直接处理的, 但是处理move的时候需要等待vsync. 但是为什么要等待vsync呢? 这个等待时间能不能去掉, 以优化latency? 我的理解是: 不能. Android这么设计是有原因的.
 前提假设:
 1. 一个batch中的move间隔很短. (&amp;lt;16ms) 2. 下一帧的画面更新只能根据一个move事件来update. (因为假设app在一帧以内收到了好几个move事件, 它不可能在下一帧同时响应这几个move事件. 一次画面更新只能对应一个事件) 所以这两个前提推出一个结论就是:

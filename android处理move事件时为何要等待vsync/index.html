@@ -5,7 +5,7 @@
   <meta http-equiv="X-Clacks-Overhead" content="GNU Terry Pratchett" />
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<link rel="shortcut icon" href="https://miseeeeen.github.io/images/favicon.png" />
+<link rel="shortcut icon" href="https://zhiwei-lii.github.io/images/favicon.png" />
 <title>Android处理Move事件时为何要等待vsync | Hugo ʕ•ᴥ•ʔ Bear Blog</title>
 <meta name="title" content="Android处理Move事件时为何要等待vsync" />
 <meta name="description" content="根据https://www.jianshu.com/p/c2e26c6d4ac1 Android处理down的时候是直接处理的, 但是处理move的时候需要等待vsync. 但是为什么要等待vsync呢? 这个等待时间能不能去掉, 以优化latency? 我的理解是: 不能. Android这么设计是有原因的.
@@ -25,7 +25,7 @@
 相关代码: (合并多个move为一个MotionEvent)
 661 status_t InputConsumer::consumeSamples(InputEventFactoryInterface* factory, 662 Batch&amp; batch, size_t count, uint32_t* outSeq, InputEvent** outEvent, int32_t* displayId) { 663 MotionEvent* motionEvent = factory-&gt;createMotionEvent(); 664 if (! motionEvent) return NO_MEMORY; 665 666 uint32_t chain = 0; 667 for (size_t i = 0; i &lt; count; i&#43;&#43;) { // count指的是batch中第一个晚于vsync的move的index 668 InputMessage&amp; msg = batch." />
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://miseeeeen.github.io/android%E5%A4%84%E7%90%86move%E4%BA%8B%E4%BB%B6%E6%97%B6%E4%B8%BA%E4%BD%95%E8%A6%81%E7%AD%89%E5%BE%85vsync/" /><meta property="og:image" content="https://miseeeeen.github.io/images/share.png"/><meta property="article:section" content="blog" />
+<meta property="og:url" content="https://zhiwei-lii.github.io/android%E5%A4%84%E7%90%86move%E4%BA%8B%E4%BB%B6%E6%97%B6%E4%B8%BA%E4%BD%95%E8%A6%81%E7%AD%89%E5%BE%85vsync/" /><meta property="og:image" content="https://zhiwei-lii.github.io/images/share.png"/><meta property="article:section" content="blog" />
 <meta property="article:published_time" content="2020-02-10T13:50:36+08:00" />
 <meta property="article:modified_time" content="2020-02-10T13:50:36+08:00" /><meta property="og:site_name" content="Hugo ʕ•ᴥ•ʔ Bear" />
 
@@ -33,7 +33,7 @@
 
 
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:image" content="https://miseeeeen.github.io/images/share.png"/>
+<meta name="twitter:image" content="https://zhiwei-lii.github.io/images/share.png"/>
 
 <meta name="twitter:title" content="Android处理Move事件时为何要等待vsync"/>
 <meta name="twitter:description" content="根据https://www.jianshu.com/p/c2e26c6d4ac1 Android处理down的时候是直接处理的, 但是处理move的时候需要等待vsync. 但是为什么要等待vsync呢? 这个等待时间能不能去掉, 以优化latency? 我的理解是: 不能. Android这么设计是有原因的.
@@ -53,7 +53,7 @@
 相关代码: (合并多个move为一个MotionEvent)
 661 status_t InputConsumer::consumeSamples(InputEventFactoryInterface* factory, 662 Batch&amp; batch, size_t count, uint32_t* outSeq, InputEvent** outEvent, int32_t* displayId) { 663 MotionEvent* motionEvent = factory-&gt;createMotionEvent(); 664 if (! motionEvent) return NO_MEMORY; 665 666 uint32_t chain = 0; 667 for (size_t i = 0; i &lt; count; i&#43;&#43;) { // count指的是batch中第一个晚于vsync的move的index 668 InputMessage&amp; msg = batch."><meta itemprop="datePublished" content="2020-02-10T13:50:36+08:00" />
 <meta itemprop="dateModified" content="2020-02-10T13:50:36+08:00" />
-<meta itemprop="wordCount" content="142"><meta itemprop="image" content="https://miseeeeen.github.io/images/share.png"/>
+<meta itemprop="wordCount" content="142"><meta itemprop="image" content="https://zhiwei-lii.github.io/images/share.png"/>
 <meta itemprop="keywords" content="" />
 <meta name="referrer" content="no-referrer-when-downgrade" />
 

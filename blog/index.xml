@@ -7,11 +7,23 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-US</language>
     <copyright>Copyright © 2020, Jane Doe.</copyright>
-    <lastBuildDate>Sun, 30 Aug 2020 13:50:36 +0800</lastBuildDate><atom:link href="https://zhiwei-lii.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 17 Apr 2023 13:50:36 +0800</lastBuildDate><atom:link href="https://zhiwei-lii.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Gfxreconstruct replay Linux/Windows game trace</title>
+      <link>https://zhiwei-lii.github.io/gfxreconstruct-replay-linux/windows-game-trace/</link>
+      <pubDate>Mon, 17 Apr 2023 13:50:36 +0800</pubDate>
+      
+      <guid>https://zhiwei-lii.github.io/gfxreconstruct-replay-linux/windows-game-trace/</guid>
+      <description>最近在研究vkd3d的性能, 在开始研究之前, 有一个前置任务: 用gfxreconstruct去replay game trace, 同时要确保这个trace既能在windows上面运行, 又能在linux上面运行. 这样可以方便我们比较linux和windows的差异. 本文记录一下, 在enable replay trace的时候, 遇到的一些问题, 以及解决方案.
+第一个尝试是: 在windows上面用vkd3d运行dx12 game, 然后把trace抓下来, 再拿到linux上面去replay. 这样的做法是保证: 游戏看到的vulkan extension在不同OS上是基本一致的(因为都要经过vkd3d)
+但是当我试图在linux上面replay这个trace的时候, 果不其然失败了(事情总是没有那么容易). 遇到了以下错误.
+ 1 [gfxrecon] WARNING - Mismatch: 2 [gfxrecon] WARNING - Captured application name: Cyberpunk2077.exe 3 [gfxrecon] WARNING - Replayer process name: gfxrecon-replay.exe 4 [gfxrecon] WARNING - This can lead to diverging driver behavior between the replayer and captured application 5 [gfxrecon] WARNING - Recommendation: Rename gfxrecon-replay.</description>
+    </item>
+    
     <item>
       <title>Intel RDT简介</title>
       <link>https://zhiwei-lii.github.io/intel-rdt%E7%AE%80%E4%BB%8B/</link>
-      <pubDate>Sun, 30 Aug 2020 13:50:36 +0800</pubDate>
+      <pubDate>Sun, 13 Jun 2021 13:50:36 +0800</pubDate>
       
       <guid>https://zhiwei-lii.github.io/intel-rdt%E7%AE%80%E4%BB%8B/</guid>
       <description>RDT要解决的就是: cache level的资源隔离. 我们先看一下noisy neighbour问题.

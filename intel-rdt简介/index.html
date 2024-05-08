@@ -24,8 +24,8 @@ Noisy Neighbor问题 在目前Server的硬件架构中, 遵循以下规则:
 Cache Allocation Technology (CAT) RDT中定义了clos的概念, 可以将它类比为cgroup中的group. 一个clos对应了一种hareware config(比如20% L3 cache). 通过将上层应用映射到这些clos, 来达到资源控制的效果." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://zhiwei-lii.github.io/intel-rdt%E7%AE%80%E4%BB%8B/" /><meta property="og:image" content="https://zhiwei-lii.github.io/images/share.png"/><meta property="article:section" content="blog" />
-<meta property="article:published_time" content="2020-08-30T13:50:36+08:00" />
-<meta property="article:modified_time" content="2020-08-30T13:50:36+08:00" /><meta property="og:site_name" content="Hugo ʕ•ᴥ•ʔ Bear" />
+<meta property="article:published_time" content="2021-06-13T13:50:36+08:00" />
+<meta property="article:modified_time" content="2021-06-13T13:50:36+08:00" /><meta property="og:site_name" content="Hugo ʕ•ᴥ•ʔ Bear" />
 
 
 
@@ -47,8 +47,8 @@ Cache Allocation Technology (CAT) RDT中定义了clos的概念, 可以将它类�
 Noisy Neighbor问题 在目前Server的硬件架构中, 遵循以下规则:
  每个logical core独享L1 cache (L1又被进一步地分为icache, dcache) 每个physical core(对应两个logical core)共享L2 cache 每个socket的core共享L3 cache  这就有可能引发noisy neighbor问题. 如下图, 分别有两个application, 由于L3是共享的, 同时遵循&quot;先到先得&quot;的原则, App[1]只有少量的L3 cache可以利用, 这对于它的性能无疑是不利的. RDT分为5个功能模块： Cache Monitoring Technology (CMT) 缓存检测技术 Cache Allocation Technology (CAT) 缓存分配技术 Memory Bandwidth Monitoring (MBM) 内存带宽监测 Memory Bandwidth Allocation (MBA) 内存带宽分配 Code and Data Prioritization (CDP) 代码和数据优先级
 下面主要介绍一下CAT和MBA的机制.
-Cache Allocation Technology (CAT) RDT中定义了clos的概念, 可以将它类比为cgroup中的group. 一个clos对应了一种hareware config(比如20% L3 cache). 通过将上层应用映射到这些clos, 来达到资源控制的效果."><meta itemprop="datePublished" content="2020-08-30T13:50:36+08:00" />
-<meta itemprop="dateModified" content="2020-08-30T13:50:36+08:00" />
+Cache Allocation Technology (CAT) RDT中定义了clos的概念, 可以将它类比为cgroup中的group. 一个clos对应了一种hareware config(比如20% L3 cache). 通过将上层应用映射到这些clos, 来达到资源控制的效果."><meta itemprop="datePublished" content="2021-06-13T13:50:36+08:00" />
+<meta itemprop="dateModified" content="2021-06-13T13:50:36+08:00" />
 <meta itemprop="wordCount" content="268"><meta itemprop="image" content="https://zhiwei-lii.github.io/images/share.png"/>
 <meta itemprop="keywords" content="" />
 <meta name="referrer" content="no-referrer-when-downgrade" />
@@ -245,8 +245,8 @@ Cache Allocation Technology (CAT) RDT中定义了clos的概念, 可以将它类�
 <h1>Intel RDT简介</h1>
 <p>
   <i>
-    <time datetime='2020-08-30' pubdate>
-      30 Aug, 2020
+    <time datetime='2021-06-13' pubdate>
+      13 Jun, 2021
     </time>
   </i>
 </p>

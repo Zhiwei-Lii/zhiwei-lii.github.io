@@ -7,7 +7,20 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-US</language>
     <copyright>Copyright © 2020, Jane Doe.</copyright>
-    <lastBuildDate>Mon, 17 Apr 2023 13:50:36 +0800</lastBuildDate><atom:link href="https://zhiwei-lii.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 28 May 2024 10:17:36 +0800</lastBuildDate><atom:link href="https://zhiwei-lii.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>关于intel_pstate下面的powersave和performance governor</title>
+      <link>https://zhiwei-lii.github.io/%E5%85%B3%E4%BA%8Eintel_pstate%E4%B8%8B%E9%9D%A2%E7%9A%84powersave%E5%92%8Cperformance-governor/</link>
+      <pubDate>Tue, 28 May 2024 10:17:36 +0800</pubDate>
+      
+      <guid>https://zhiwei-lii.github.io/%E5%85%B3%E4%BA%8Eintel_pstate%E4%B8%8B%E9%9D%A2%E7%9A%84powersave%E5%92%8Cperformance-governor/</guid>
+      <description>我们都知道, powersave和performance是cpufreq里面两个不同的governor, 用于控制cpu进入不同的频率(p_state).
+但是我一直有这样一个固有认知:
+ 当cpu处于powersave mode时, 出于省电考虑, cpufreq会运行在最低频率. 当cpu处于performance mode时, 出于性能考虑, cpufreq会运行在turbo允许的最高频率.  但是最近才发现: 当我们的cpufreq driver = intel_pstate时, powersave其实更像是以前的ondemand/schedutil, 即根据实际情况, 动态调整power和performance之间的关系, 而不是死板地运行在最低频率.
+zhiwei@zhiwei-pc:~$ cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_driver intel_pstate zhiwei@zhiwei-pc:~$ zhiwei@zhiwei-pc:~$ cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor powersave # 在intel_pstate下面, 只有performance和powersave两种governor zhiwei@zhiwei-pc:~$ cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors performance powersave 然后我就去查看了一下相关的kernel code, 试图理解: 当我们把governor设成powersave之后, 发生了什么.
+// 这是kernel 6.1, 调用链大致如下: // store_scaling_governor -&amp;gt; cpufreq_set_policy -&amp;gt; intel_pstate_set_policy -&amp;gt; intel_pstate_hwp_set // drivers/cpufreq/intel_pstate.c static void intel_pstate_hwp_set(unsigned int cpu) { ... // 这里的max/min对应了scaling_max_freq/scaling_min_freq max = cpu_data-&amp;gt;max_perf_ratio; min = cpu_data-&amp;gt;min_perf_ratio; // 如果是performance的话, 把min也设成max, 达到性能最大化 if (cpu_data-&amp;gt;policy == CPUFREQ_POLICY_PERFORMANCE) min = max; // 读取MSR_HWP_REQUEST这个寄存器的值 rdmsrl_on_cpu(cpu, MSR_HWP_REQUEST, &amp;amp;value); value &amp;amp;= ~HWP_MIN_PERF(~0L); value |= HWP_MIN_PERF(min); value &amp;amp;= ~HWP_MAX_PERF(~0L); value |= HWP_MAX_PERF(max); .</description>
+    </item>
+    
     <item>
       <title>Gfxreconstruct replay Linux/Windows game trace</title>
       <link>https://zhiwei-lii.github.io/gfxreconstruct-replay-linux/windows-game-trace/</link>

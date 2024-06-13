@@ -7,7 +7,21 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-US</language>
     <copyright>Copyright © 2020, Jane Doe.</copyright>
-    <lastBuildDate>Tue, 28 May 2024 10:17:36 +0800</lastBuildDate><atom:link href="https://zhiwei-lii.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Thu, 13 Jun 2024 10:17:36 +0800</lastBuildDate><atom:link href="https://zhiwei-lii.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>记录一次性能调优的经历</title>
+      <link>https://zhiwei-lii.github.io/%E8%AE%B0%E5%BD%95%E4%B8%80%E6%AC%A1%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%E7%9A%84%E7%BB%8F%E5%8E%86/</link>
+      <pubDate>Thu, 13 Jun 2024 10:17:36 +0800</pubDate>
+      
+      <guid>https://zhiwei-lii.github.io/%E8%AE%B0%E5%BD%95%E4%B8%80%E6%AC%A1%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%E7%9A%84%E7%BB%8F%E5%8E%86/</guid>
+      <description>请原谅我不知道标题该起什么名字合适:D 最近在负责某benchmark在x86平台上的cpu性能优化, 遇到了这样一个问题: 该benchmark有app版本和native版本, app版本其实就是简单地通过jni调用到了native层, 明明native层的代码都是一样的, 但是它们的性能差了10%以上.
+由于该benchmark比较复杂, 所以我第一个实验就是写了一个简单的app, 模拟它的行为, 同样调到了它的native层, 然后发现能够复现问题. 下一步重写了它的native层, 依旧发现可以复现问题.
+至此, 这个问题已经和benchmark无关了, 变成了这样一个通用的问题: 为什么在x86平台上面, 同样的code在app里面被调用到的时候, 相较native层, 会出现10%以上的性能损失?
+于是, 我就开始了一通调查, 一个比较重要的发现是: 这个问题和selinux有关, 只有selinux=enforcing的时候, 会有这个现象. selinux=permissive的时候, 就不能复现问题.
+顺着这个线索, 我开始跟踪zygote的启动过程, 发现了下面这一段代码. Zygote在init的时候, 会去check selinux的状态. 如果是permissive的话, 什么都不做. 如果是enforcing的话, 会给所有后续从zygote fork的进程, 加上seccomp这个security feature.
+632 static void SetUpSeccompFilter(uid_t uid, bool is_child_zygote) { 633 if (!gIsSecurityEnforced) { 634 ALOGI(&amp;quot;seccomp disabled by setenforce 0&amp;quot;); 635 return; 636 } 637 638 // Apply system or app filter based on uid.</description>
+    </item>
+    
     <item>
       <title>关于intel_pstate下面的powersave和performance governor</title>
       <link>https://zhiwei-lii.github.io/%E5%85%B3%E4%BA%8Eintel_pstate%E4%B8%8B%E9%9D%A2%E7%9A%84powersave%E5%92%8Cperformance-governor/</link>

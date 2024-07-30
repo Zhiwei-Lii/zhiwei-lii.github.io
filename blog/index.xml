@@ -7,13 +7,25 @@
     <generator>Hugo -- gohugo.io</generator>
     <language>en-US</language>
     <copyright>Copyright © 2020, Jane Doe.</copyright>
-    <lastBuildDate>Thu, 13 Jun 2024 10:17:36 +0800</lastBuildDate><atom:link href="https://zhiwei-lii.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 30 Jul 2024 12:43:52 +0800</lastBuildDate><atom:link href="https://zhiwei-lii.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>记录一次性能调优的经历</title>
-      <link>https://zhiwei-lii.github.io/%E8%AE%B0%E5%BD%95%E4%B8%80%E6%AC%A1%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%E7%9A%84%E7%BB%8F%E5%8E%86/</link>
+      <title>Intel CPU上面的Linux大小核调度问题</title>
+      <link>https://zhiwei-lii.github.io/intel-cpu%E4%B8%8A%E9%9D%A2%E7%9A%84linux%E5%A4%A7%E5%B0%8F%E6%A0%B8%E8%B0%83%E5%BA%A6%E9%97%AE%E9%A2%98/</link>
+      <pubDate>Tue, 30 Jul 2024 12:43:52 +0800</pubDate>
+      
+      <guid>https://zhiwei-lii.github.io/intel-cpu%E4%B8%8A%E9%9D%A2%E7%9A%84linux%E5%A4%A7%E5%B0%8F%E6%A0%B8%E8%B0%83%E5%BA%A6%E9%97%AE%E9%A2%98/</guid>
+      <description>自从12代Alder lake开始, Intel引入了大小核架构. 我最近也遇到了这样一个问题: 在Linux环境下面, 对于单线程的workload来说, 有时候它会运行在p-core, 有时候它会运行在e-core(即使p-core是idle的). 碰到这个问题的时候, 我是一脸懵逼的Orz. 因为印象中, 这类问题应该在adl刚出来的时候, 就已经受到广泛讨论了, 应该已经解决了才对, 毕竟我用的是kernel 6.1.
+目前, 第一个线索是: 这个问题只发生在virtualization的环境下面(我们的方案是基于acrn的https://github.com/projectacrn), 在baremetal下面没有这个问题.
+浅浅地读了一下sched这边的kernel代码. 我第一个怀疑的是select_task_rq_fair这个函数. 但是我仔细读了一下, 发现它就是遵循cfs的描述, 单纯地选择一个idlest的cpu, 塞进rq里面.
+# kernel/sched/fair.c 7500 * select_task_rq_fair: Select target runqueue for the waking task in domains 7501 * that have the relevant SD flag set. In practice, this is SD_BALANCE_WAKE, 7502 * SD_BALANCE_FORK, or SD_BALANCE_EXEC. 7503 * 7504 * Balances load by selecting the idlest CPU in the idlest group, or under 7505 * certain conditions an idle sibling CPU if the domain has SD_WAKE_AFFINE set.</description>
+    </item>
+    
+    <item>
+      <title>记录一次性能调优的经历: app和native版本差10%</title>
+      <link>https://zhiwei-lii.github.io/%E8%AE%B0%E5%BD%95%E4%B8%80%E6%AC%A1%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%E7%9A%84%E7%BB%8F%E5%8E%86-app%E5%92%8Cnative%E7%89%88%E6%9C%AC%E5%B7%AE10/</link>
       <pubDate>Thu, 13 Jun 2024 10:17:36 +0800</pubDate>
       
-      <guid>https://zhiwei-lii.github.io/%E8%AE%B0%E5%BD%95%E4%B8%80%E6%AC%A1%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%E7%9A%84%E7%BB%8F%E5%8E%86/</guid>
+      <guid>https://zhiwei-lii.github.io/%E8%AE%B0%E5%BD%95%E4%B8%80%E6%AC%A1%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%E7%9A%84%E7%BB%8F%E5%8E%86-app%E5%92%8Cnative%E7%89%88%E6%9C%AC%E5%B7%AE10/</guid>
       <description>请原谅我不知道标题该起什么名字合适:D 最近在负责某benchmark在x86平台上的cpu性能优化, 遇到了这样一个问题: 该benchmark有app版本和native版本, app版本其实就是简单地通过jni调用到了native层, 明明native层的代码都是一样的, 但是它们的性能差了10%以上.
 由于该benchmark比较复杂, 所以我第一个实验就是写了一个简单的app, 模拟它的行为, 同样调到了它的native层, 然后发现能够复现问题. 下一步重写了它的native层, 依旧发现可以复现问题.
 至此, 这个问题已经和benchmark无关了, 变成了这样一个通用的问题: 为什么在x86平台上面, 同样的code在app里面被调用到的时候, 相较native层, 会出现10%以上的性能损失?

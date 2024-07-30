@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+  <meta http-equiv="X-Clacks-Overhead" content="GNU Terry Pratchett" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="shortcut icon" href="https://zhiwei-lii.github.io/images/favicon.png" />
+<title>记录一次性能调优的经历: app和native版本差10% | Hugo ʕ•ᴥ•ʔ Bear Blog</title>
+<meta name="title" content="记录一次性能调优的经历: app和native版本差10%" />
+<meta name="description" content="请原谅我不知道标题该起什么名字合适:D 最近在负责某benchmark在x86平台上的cpu性能优化, 遇到了这样一个问题: 该benchmark有app版本和native版本, app版本其实就是简单地通过jni调用到了native层, 明明native层的代码都是一样的, 但是它们的性能差了10%以上.
+由于该benchmark比较复杂, 所以我第一个实验就是写了一个简单的app, 模拟它的行为, 同样调到了它的native层, 然后发现能够复现问题. 下一步重写了它的native层, 依旧发现可以复现问题.
+至此, 这个问题已经和benchmark无关了, 变成了这样一个通用的问题: 为什么在x86平台上面, 同样的code在app里面被调用到的时候, 相较native层, 会出现10%以上的性能损失?
+于是, 我就开始了一通调查, 一个比较重要的发现是: 这个问题和selinux有关, 只有selinux=enforcing的时候, 会有这个现象. selinux=permissive的时候, 就不能复现问题.
+顺着这个线索, 我开始跟踪zygote的启动过程, 发现了下面这一段代码. Zygote在init的时候, 会去check selinux的状态. 如果是permissive的话, 什么都不做. 如果是enforcing的话, 会给所有后续从zygote fork的进程, 加上seccomp这个security feature.
+632 static void SetUpSeccompFilter(uid_t uid, bool is_child_zygote) { 633 if (!gIsSecurityEnforced) { 634 ALOGI(&quot;seccomp disabled by setenforce 0&quot;); 635 return; 636 } 637 638 // Apply system or app filter based on uid." />
+<meta name="keywords" content="" />
+
+
+<meta property="og:title" content="记录一次性能调优的经历: app和native版本差10%" />
+<meta property="og:description" content="请原谅我不知道标题该起什么名字合适:D 最近在负责某benchmark在x86平台上的cpu性能优化, 遇到了这样一个问题: 该benchmark有app版本和native版本, app版本其实就是简单地通过jni调用到了native层, 明明native层的代码都是一样的, 但是它们的性能差了10%以上.
+由于该benchmark比较复杂, 所以我第一个实验就是写了一个简单的app, 模拟它的行为, 同样调到了它的native层, 然后发现能够复现问题. 下一步重写了它的native层, 依旧发现可以复现问题.
+至此, 这个问题已经和benchmark无关了, 变成了这样一个通用的问题: 为什么在x86平台上面, 同样的code在app里面被调用到的时候, 相较native层, 会出现10%以上的性能损失?
+于是, 我就开始了一通调查, 一个比较重要的发现是: 这个问题和selinux有关, 只有selinux=enforcing的时候, 会有这个现象. selinux=permissive的时候, 就不能复现问题.
+顺着这个线索, 我开始跟踪zygote的启动过程, 发现了下面这一段代码. Zygote在init的时候, 会去check selinux的状态. 如果是permissive的话, 什么都不做. 如果是enforcing的话, 会给所有后续从zygote fork的进程, 加上seccomp这个security feature.
+632 static void SetUpSeccompFilter(uid_t uid, bool is_child_zygote) { 633 if (!gIsSecurityEnforced) { 634 ALOGI(&quot;seccomp disabled by setenforce 0&quot;); 635 return; 636 } 637 638 // Apply system or app filter based on uid." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zhiwei-lii.github.io/%E8%AE%B0%E5%BD%95%E4%B8%80%E6%AC%A1%E6%80%A7%E8%83%BD%E8%B0%83%E4%BC%98%E7%9A%84%E7%BB%8F%E5%8E%86-app%E5%92%8Cnative%E7%89%88%E6%9C%AC%E5%B7%AE10/" /><meta property="og:image" content="https://zhiwei-lii.github.io/images/share.png"/><meta property="article:section" content="blog" />
+<meta property="article:published_time" content="2024-06-13T10:17:36+08:00" />
+<meta property="article:modified_time" content="2024-06-13T10:17:36+08:00" /><meta property="og:site_name" content="Hugo ʕ•ᴥ•ʔ Bear" />
+
+
+
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://zhiwei-lii.github.io/images/share.png"/>
+
+<meta name="twitter:title" content="记录一次性能调优的经历: app和native版本差10%"/>
+<meta name="twitter:description" content="请原谅我不知道标题该起什么名字合适:D 最近在负责某benchmark在x86平台上的cpu性能优化, 遇到了这样一个问题: 该benchmark有app版本和native版本, app版本其实就是简单地通过jni调用到了native层, 明明native层的代码都是一样的, 但是它们的性能差了10%以上.
+由于该benchmark比较复杂, 所以我第一个实验就是写了一个简单的app, 模拟它的行为, 同样调到了它的native层, 然后发现能够复现问题. 下一步重写了它的native层, 依旧发现可以复现问题.
+至此, 这个问题已经和benchmark无关了, 变成了这样一个通用的问题: 为什么在x86平台上面, 同样的code在app里面被调用到的时候, 相较native层, 会出现10%以上的性能损失?
+于是, 我就开始了一通调查, 一个比较重要的发现是: 这个问题和selinux有关, 只有selinux=enforcing的时候, 会有这个现象. selinux=permissive的时候, 就不能复现问题.
+顺着这个线索, 我开始跟踪zygote的启动过程, 发现了下面这一段代码. Zygote在init的时候, 会去check selinux的状态. 如果是permissive的话, 什么都不做. 如果是enforcing的话, 会给所有后续从zygote fork的进程, 加上seccomp这个security feature.
+632 static void SetUpSeccompFilter(uid_t uid, bool is_child_zygote) { 633 if (!gIsSecurityEnforced) { 634 ALOGI(&quot;seccomp disabled by setenforce 0&quot;); 635 return; 636 } 637 638 // Apply system or app filter based on uid."/>
+
+
+
+<meta itemprop="name" content="记录一次性能调优的经历: app和native版本差10%">
+<meta itemprop="description" content="请原谅我不知道标题该起什么名字合适:D 最近在负责某benchmark在x86平台上的cpu性能优化, 遇到了这样一个问题: 该benchmark有app版本和native版本, app版本其实就是简单地通过jni调用到了native层, 明明native层的代码都是一样的, 但是它们的性能差了10%以上.
+由于该benchmark比较复杂, 所以我第一个实验就是写了一个简单的app, 模拟它的行为, 同样调到了它的native层, 然后发现能够复现问题. 下一步重写了它的native层, 依旧发现可以复现问题.
+至此, 这个问题已经和benchmark无关了, 变成了这样一个通用的问题: 为什么在x86平台上面, 同样的code在app里面被调用到的时候, 相较native层, 会出现10%以上的性能损失?
+于是, 我就开始了一通调查, 一个比较重要的发现是: 这个问题和selinux有关, 只有selinux=enforcing的时候, 会有这个现象. selinux=permissive的时候, 就不能复现问题.
+顺着这个线索, 我开始跟踪zygote的启动过程, 发现了下面这一段代码. Zygote在init的时候, 会去check selinux的状态. 如果是permissive的话, 什么都不做. 如果是enforcing的话, 会给所有后续从zygote fork的进程, 加上seccomp这个security feature.
+632 static void SetUpSeccompFilter(uid_t uid, bool is_child_zygote) { 633 if (!gIsSecurityEnforced) { 634 ALOGI(&quot;seccomp disabled by setenforce 0&quot;); 635 return; 636 } 637 638 // Apply system or app filter based on uid."><meta itemprop="datePublished" content="2024-06-13T10:17:36+08:00" />
+<meta itemprop="dateModified" content="2024-06-13T10:17:36+08:00" />
+<meta itemprop="wordCount" content="157"><meta itemprop="image" content="https://zhiwei-lii.github.io/images/share.png"/>
+<meta itemprop="keywords" content="" />
+<meta name="referrer" content="no-referrer-when-downgrade" />
+
+  <style>
+  body {
+    font-family: Verdana, sans-serif;
+    margin: auto;
+    padding: 20px;
+    max-width: 720px;
+    text-align: left;
+    background-color: #fff;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.5;
+    color: #444;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  strong,
+  b {
+    color: #222;
+  }
+
+  a {
+    color: #3273dc;
+     
+  }
+
+  .title {
+    text-decoration: none;
+    border: 0;
+  }
+
+  .title span {
+    font-weight: 400;
+  }
+
+  nav a {
+    margin-right: 10px;
+  }
+
+  textarea {
+    width: 100%;
+    font-size: 16px;
+  }
+
+  input {
+    font-size: 16px;
+  }
+
+  content {
+    line-height: 1.6;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  code {
+    padding: 2px 5px;
+    background-color: #f2f2f2;
+  }
+
+  pre code {
+    color: #222;
+    display: block;
+    padding: 20px;
+    white-space: pre-wrap;
+    font-size: 14px;
+    overflow-x: auto;
+  }
+
+  div.highlight pre {
+    background-color: initial;
+    color: initial;
+  }
+
+  div.highlight code {
+    background-color: unset;
+    color: unset;
+  }
+
+  blockquote {
+    border-left: 1px solid #999;
+    color: #222;
+    padding-left: 20px;
+    font-style: italic;
+  }
+
+  footer {
+    padding: 25px;
+    text-align: center;
+  }
+
+  .helptext {
+    color: #777;
+    font-size: small;
+  }
+
+  .errorlist {
+    color: #eba613;
+    font-size: small;
+  }
+
+   
+  ul.blog-posts {
+    list-style-type: none;
+    padding: unset;
+  }
+
+  ul.blog-posts li {
+    display: flex;
+  }
+
+  ul.blog-posts li span {
+    flex: 0 0 130px;
+  }
+
+  ul.blog-posts li a:visited {
+    color: #8b6fcb;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      background-color: #333;
+      color: #ddd;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    strong,
+    b {
+      color: #eee;
+    }
+
+    a {
+      color: #8cc2dd;
+    }
+
+    code {
+      background-color: #777;
+    }
+
+    pre code {
+      color: #ddd;
+    }
+
+    blockquote {
+      color: #ccc;
+    }
+
+    textarea,
+    input {
+      background-color: #252525;
+      color: #ddd;
+    }
+
+    .helptext {
+      color: #aaa;
+    }
+  }
+
+</style>
+
+</head>
+
+<body>
+  <header><a href="/" class="title">
+  <h2>Hugo ʕ•ᴥ•ʔ Bear Blog</h2>
+</a>
+<nav><a href="/">Home</a>
+
+
+<a href="/blog">Blog</a>
+
+</nav>
+</header>
+  <main>
+
+<h1>记录一次性能调优的经历: app和native版本差10%</h1>
+<p>
+  <i>
+    <time datetime='2024-06-13' pubdate>
+      13 Jun, 2024
+    </time>
+  </i>
+</p>
+
+<content>
+  <p>请原谅我不知道标题该起什么名字合适:D
+最近在负责某benchmark在x86平台上的cpu性能优化, 遇到了这样一个问题: 该benchmark有app版本和native版本, app版本其实就是简单地通过jni调用到了native层, 明明native层的代码都是一样的, 但是它们的性能差了10%以上.</p>
+<p>由于该benchmark比较复杂, 所以我第一个实验就是写了一个简单的app, 模拟它的行为, 同样调到了它的native层, 然后发现能够复现问题.
+下一步重写了它的native层, 依旧发现可以复现问题.</p>
+<p>至此, 这个问题已经和benchmark无关了, 变成了这样一个通用的问题: 为什么在x86平台上面,  同样的code在app里面被调用到的时候, 相较native层, 会出现10%以上的性能损失?</p>
+<p>于是, 我就开始了一通调查, 一个比较重要的发现是: 这个问题和selinux有关, 只有selinux=enforcing的时候, 会有这个现象. selinux=permissive的时候, 就不能复现问题.</p>
+<p>顺着这个线索, 我开始跟踪zygote的启动过程, 发现了下面这一段代码.
+Zygote在init的时候, 会去check selinux的状态.
+如果是permissive的话, 什么都不做.
+如果是enforcing的话, 会给所有后续从zygote fork的进程, 加上seccomp这个security feature.</p>
+<pre tabindex="0"><code>632  static void SetUpSeccompFilter(uid_t uid, bool is_child_zygote) {
+633    if (!gIsSecurityEnforced) {
+634      ALOGI(&quot;seccomp disabled by setenforce 0&quot;);
+635      return;
+636    }
+637  
+638    // Apply system or app filter based on uid.
+639    if (uid &gt;= AID_APP_START) {
+640      if (is_child_zygote) {
+641        set_app_zygote_seccomp_filter();
+642      } else {
+643        set_app_seccomp_filter();
+644      }
+645    } else {
+646      set_system_seccomp_filter();
+647    }
+648  }
+</code></pre><p>然后seccomp加上的时候, 默认会disable掉这两个优化: Speculation_Store_Bypass和SpeculationIndirectBranch.
+状态如下: (这是benchmark app的dump)</p>
+<pre tabindex="0"><code># /proc/[pid]/status
+Seccomp:	2
+Seccomp_filters:	1
+Speculation_Store_Bypass:	thread force mitigated
+SpeculationIndirectBranch:	conditional force disabled
+</code></pre><p>不加seccomp, 它是这样的: (这是native shell的dump, native shell起来的进程由于与zygote无关, 所以不会被添加seccomp的配置)</p>
+<pre tabindex="0"><code># /proc/[pid]/status
+Seccomp:	0
+Seccomp_filters:	0
+Speculation_Store_Bypass:	thread vulnerable
+SpeculationIndirectBranch:	conditional enabled
+</code></pre><p>至此, 问题就比较清楚了, 总结一下就是: zygote配置seccomp的时候, 出于安全考虑, 关掉了两个处理器level的优化, 导致app层的code执行得相对较慢. 如果想强制改变这个行为, 只需要加上这两个kernel参数就好了. “ spec_store_bypass_disable=off  spectre_v2_user=off ”</p>
+
+</content>
+<p>
+  
+</p>
+
+  </main>
+  <footer>Made with <a href="https://github.com/janraasch/hugo-bearblog/">Hugo ʕ•ᴥ•ʔ Bear</a>
+</footer>
+
+    
+</body>
+
+</html>

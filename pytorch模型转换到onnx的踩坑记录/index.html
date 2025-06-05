@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+  <meta http-equiv="X-Clacks-Overhead" content="GNU Terry Pratchett" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="shortcut icon" href="https://zhiwei-lii.github.io/images/favicon.png" />
+<title>pytorch模型转换到onnx的踩坑记录 | Miseeeeen&#39;s Blog</title>
+<meta name="title" content="pytorch模型转换到onnx的踩坑记录" />
+<meta name="description" content="作为AI初学者, 我在将FlashOcc模型从PyTorch移植到OpenVINO的过程中遇到了各种问题. 虽然仍然没有成功转成openvino, 但是本文会列出一些自己踩过的坑, 希望能帮助类似问题的开发者.
+环境准备  硬件：NVIDIA RTX 4090 模型：https://github.com/Yzichen/FlashOCC 软件：pytorch 1.10, cuda 11.1(软件版本和FlashOCC的需求对齐)  步骤概述  在 NVIDIA 4090 上运行FlashOcc 将 PyTorch 模型转换为 ONNX 将 ONNX 转换为 OpenVINO IR 在设备上进行 IR 推理(NPU、GPU)  阶段一：在RTX 4090上运行FlashOcc 问题1：CUDA求解器内部错误 错误堆栈
+Traceback (most recent call last): File &quot;run_flashocc.py&quot;, line 87, in &lt;module&gt; main() File &quot;run_flashocc.py&quot;, line 73, in main output = model(input_data) File &quot;/opt/conda/lib/python3.8/site-packages/torch/nn/modules/module.py&quot;, line 1102, in _call_impl return forward_call(*input, **kwargs) File &quot;/project/models/flashocc." />
+<meta name="keywords" content="" />
+
+
+<meta property="og:title" content="pytorch模型转换到onnx的踩坑记录" />
+<meta property="og:description" content="作为AI初学者, 我在将FlashOcc模型从PyTorch移植到OpenVINO的过程中遇到了各种问题. 虽然仍然没有成功转成openvino, 但是本文会列出一些自己踩过的坑, 希望能帮助类似问题的开发者.
+环境准备  硬件：NVIDIA RTX 4090 模型：https://github.com/Yzichen/FlashOCC 软件：pytorch 1.10, cuda 11.1(软件版本和FlashOCC的需求对齐)  步骤概述  在 NVIDIA 4090 上运行FlashOcc 将 PyTorch 模型转换为 ONNX 将 ONNX 转换为 OpenVINO IR 在设备上进行 IR 推理(NPU、GPU)  阶段一：在RTX 4090上运行FlashOcc 问题1：CUDA求解器内部错误 错误堆栈
+Traceback (most recent call last): File &quot;run_flashocc.py&quot;, line 87, in &lt;module&gt; main() File &quot;run_flashocc.py&quot;, line 73, in main output = model(input_data) File &quot;/opt/conda/lib/python3.8/site-packages/torch/nn/modules/module.py&quot;, line 1102, in _call_impl return forward_call(*input, **kwargs) File &quot;/project/models/flashocc." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://zhiwei-lii.github.io/pytorch%E6%A8%A1%E5%9E%8B%E8%BD%AC%E6%8D%A2%E5%88%B0onnx%E7%9A%84%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/" /><meta property="og:image" content="https://zhiwei-lii.github.io/images/share.png"/><meta property="article:section" content="blog" />
+<meta property="article:published_time" content="2025-05-30T08:13:49+08:00" />
+<meta property="article:modified_time" content="2025-05-30T08:13:49+08:00" /><meta property="og:site_name" content="Miseeeeen&#39;s Blog" />
+
+
+
+
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:image" content="https://zhiwei-lii.github.io/images/share.png"/>
+
+<meta name="twitter:title" content="pytorch模型转换到onnx的踩坑记录"/>
+<meta name="twitter:description" content="作为AI初学者, 我在将FlashOcc模型从PyTorch移植到OpenVINO的过程中遇到了各种问题. 虽然仍然没有成功转成openvino, 但是本文会列出一些自己踩过的坑, 希望能帮助类似问题的开发者.
+环境准备  硬件：NVIDIA RTX 4090 模型：https://github.com/Yzichen/FlashOCC 软件：pytorch 1.10, cuda 11.1(软件版本和FlashOCC的需求对齐)  步骤概述  在 NVIDIA 4090 上运行FlashOcc 将 PyTorch 模型转换为 ONNX 将 ONNX 转换为 OpenVINO IR 在设备上进行 IR 推理(NPU、GPU)  阶段一：在RTX 4090上运行FlashOcc 问题1：CUDA求解器内部错误 错误堆栈
+Traceback (most recent call last): File &quot;run_flashocc.py&quot;, line 87, in &lt;module&gt; main() File &quot;run_flashocc.py&quot;, line 73, in main output = model(input_data) File &quot;/opt/conda/lib/python3.8/site-packages/torch/nn/modules/module.py&quot;, line 1102, in _call_impl return forward_call(*input, **kwargs) File &quot;/project/models/flashocc."/>
+
+
+
+<meta itemprop="name" content="pytorch模型转换到onnx的踩坑记录">
+<meta itemprop="description" content="作为AI初学者, 我在将FlashOcc模型从PyTorch移植到OpenVINO的过程中遇到了各种问题. 虽然仍然没有成功转成openvino, 但是本文会列出一些自己踩过的坑, 希望能帮助类似问题的开发者.
+环境准备  硬件：NVIDIA RTX 4090 模型：https://github.com/Yzichen/FlashOCC 软件：pytorch 1.10, cuda 11.1(软件版本和FlashOCC的需求对齐)  步骤概述  在 NVIDIA 4090 上运行FlashOcc 将 PyTorch 模型转换为 ONNX 将 ONNX 转换为 OpenVINO IR 在设备上进行 IR 推理(NPU、GPU)  阶段一：在RTX 4090上运行FlashOcc 问题1：CUDA求解器内部错误 错误堆栈
+Traceback (most recent call last): File &quot;run_flashocc.py&quot;, line 87, in &lt;module&gt; main() File &quot;run_flashocc.py&quot;, line 73, in main output = model(input_data) File &quot;/opt/conda/lib/python3.8/site-packages/torch/nn/modules/module.py&quot;, line 1102, in _call_impl return forward_call(*input, **kwargs) File &quot;/project/models/flashocc."><meta itemprop="datePublished" content="2025-05-30T08:13:49+08:00" />
+<meta itemprop="dateModified" content="2025-05-30T08:13:49+08:00" />
+<meta itemprop="wordCount" content="630"><meta itemprop="image" content="https://zhiwei-lii.github.io/images/share.png"/>
+<meta itemprop="keywords" content="" />
+<meta name="referrer" content="no-referrer-when-downgrade" />
+
+  <style>
+  body {
+    font-family: Verdana, sans-serif;
+    margin: auto;
+    padding: 20px;
+    max-width: 720px;
+    text-align: left;
+    background-color: #fff;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.5;
+    color: #444;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  strong,
+  b {
+    color: #222;
+  }
+
+  a {
+    color: #3273dc;
+     
+  }
+
+  .title {
+    text-decoration: none;
+    border: 0;
+  }
+
+  .title span {
+    font-weight: 400;
+  }
+
+  nav a {
+    margin-right: 10px;
+  }
+
+  textarea {
+    width: 100%;
+    font-size: 16px;
+  }
+
+  input {
+    font-size: 16px;
+  }
+
+  content {
+    line-height: 1.6;
+  }
+
+  table {
+    width: 100%;
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  code {
+    padding: 2px 5px;
+    background-color: #f2f2f2;
+  }
+
+  pre code {
+    color: #222;
+    display: block;
+    padding: 20px;
+    white-space: pre-wrap;
+    font-size: 14px;
+    overflow-x: auto;
+  }
+
+  div.highlight pre {
+    background-color: initial;
+    color: initial;
+  }
+
+  div.highlight code {
+    background-color: unset;
+    color: unset;
+  }
+
+  blockquote {
+    border-left: 1px solid #999;
+    color: #222;
+    padding-left: 20px;
+    font-style: italic;
+  }
+
+  footer {
+    padding: 25px;
+    text-align: center;
+  }
+
+  .helptext {
+    color: #777;
+    font-size: small;
+  }
+
+  .errorlist {
+    color: #eba613;
+    font-size: small;
+  }
+
+   
+  ul.blog-posts {
+    list-style-type: none;
+    padding: unset;
+  }
+
+  ul.blog-posts li {
+    display: flex;
+  }
+
+  ul.blog-posts li span {
+    flex: 0 0 130px;
+  }
+
+  ul.blog-posts li a:visited {
+    color: #8b6fcb;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      background-color: #333;
+      color: #ddd;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    strong,
+    b {
+      color: #eee;
+    }
+
+    a {
+      color: #8cc2dd;
+    }
+
+    code {
+      background-color: #777;
+    }
+
+    pre code {
+      color: #ddd;
+    }
+
+    blockquote {
+      color: #ccc;
+    }
+
+    textarea,
+    input {
+      background-color: #252525;
+      color: #ddd;
+    }
+
+    .helptext {
+      color: #aaa;
+    }
+  }
+
+</style>
+
+</head>
+
+<body>
+  <header><a href="/" class="title">
+  <h2>Miseeeeen&#39;s Blog</h2>
+</a>
+<nav><a href="/">Home</a>
+
+
+<a href="/blog">Blog</a>
+
+</nav>
+</header>
+  <main>
+
+<h1>pytorch模型转换到onnx的踩坑记录</h1>
+<p>
+  <i>
+    <time datetime='2025-05-30' pubdate>
+      30 May, 2025
+    </time>
+  </i>
+</p>
+
+<content>
+  <p>作为AI初学者, 我在将FlashOcc模型从PyTorch移植到OpenVINO的过程中遇到了各种问题.
+虽然仍然没有成功转成openvino, 但是本文会列出一些自己踩过的坑, 希望能帮助类似问题的开发者.</p>
+<h2 id="环境准备">环境准备</h2>
+<ul>
+<li><strong>硬件</strong>：NVIDIA RTX 4090</li>
+<li><strong>模型</strong>：https://github.com/Yzichen/FlashOCC</li>
+<li><strong>软件</strong>：pytorch 1.10, cuda 11.1(软件版本和FlashOCC的需求对齐)</li>
+</ul>
+<h2 id="步骤概述">步骤概述</h2>
+<ol>
+<li>在 NVIDIA 4090 上运行FlashOcc</li>
+<li>将 PyTorch 模型转换为 ONNX</li>
+<li>将 ONNX 转换为 OpenVINO IR</li>
+<li>在设备上进行 IR 推理(NPU、GPU)</li>
+</ol>
+<h2 id="阶段一在rtx-4090上运行flashocc">阶段一：在RTX 4090上运行FlashOcc</h2>
+<h3 id="问题1cuda求解器内部错误">问题1：CUDA求解器内部错误</h3>
+<p>错误堆栈</p>
+<pre tabindex="0"><code>Traceback (most recent call last):
+  File &quot;run_flashocc.py&quot;, line 87, in &lt;module&gt;
+    main()
+  File &quot;run_flashocc.py&quot;, line 73, in main
+    output = model(input_data)
+  File &quot;/opt/conda/lib/python3.8/site-packages/torch/nn/modules/module.py&quot;, line 1102, in _call_impl
+    return forward_call(*input, **kwargs)
+  File &quot;/project/models/flashocc.py&quot;, line 215, in forward
+    bev_feat = self.bev_encoder(bev_feat)
+  File &quot;/opt/conda/lib/python3.8/site-packages/torch/nn/modules/module.py&quot;, line 1102, in _call_impl
+    return forward_call(*input, **kwargs)
+  File &quot;/project/models/backbones.py&quot;, line 178, in forward
+    x = layer(x)
+  File &quot;/opt/conda/lib/python3.8/site-packages/torch/nn/modules/module.py&quot;, line 1102, in _call_impl
+    return forward_call(*input, **kwargs)
+  File &quot;/project/models/backbones.py&quot;, line 104, in forward
+    x = self.conv(x)
+  File &quot;/opt/conda/lib/python3.8/site-packages/torch/nn/modules/module.py&quot;, line 1102, in _call_impl
+    return forward_call(*input, **kwargs)
+  File &quot;/project/ops/bev_pool_v2/bev_pool.py&quot;, line 152, in forward
+    output = bev_pool_v2(depth, feat, ranks_depth, ranks_feat, ranks_bev)
+  File &quot;/project/ops/bev_pool_v2/bev_pool.py&quot;, line 84, in forward
+    inv = torch.inverse(extrin)
+RuntimeError: cusolver error: CUSOLVER_STATUS_INTERNAL_ERROR,
+when calling `cusolverDnCreate(handle)`
+</code></pre><p>原因分析
+怀疑是RTX 4090的CUDA架构与PyTorch 1.10的torch.inverse()函数存在兼容性问题.</p>
+<p>解决方案
+有两个方法:
+(1) 升级torch版本, 副作用是要解决可能存在的依赖问题
+(2) 尝试一下cpu版本的inverse
+这里博主尝试了方案2, 将矩阵求逆操作回退到CPU执行.</p>
+<pre tabindex="0"><code>修改前:
+global2keyego = torch.inverse(keyego2global.double())   # (B, 1, 4, 4)
+
+修改后:
+keyego2global_cpu = keyego2global.double().to('cpu')
+global2keyego_cpu = torch.inverse(keyego2global_cpu)
+global2keyego = global2keyego_cpu.to('cuda')
+
+</code></pre><p>解决这个问题之后, FlashOcc就能够成功完成推理了.</p>
+<h2 id="阶段二pytorch转onnx模型">阶段二：PyTorch转ONNX模型</h2>
+<h3 id="问题2kwargs参数的支持问题">问题2：kwargs参数的支持问题</h3>
+<p>onnx export的过程是需要一个dummy input的, 因为目前主流是使用tracing的办法去完成pytorch-&gt;onnx的转换. 它需要一个dummpy input, 来把模型实际跑一遍, 同时生成一个计算图.
+但是flashocc的forward函数是下面这样的,</p>
+<pre tabindex="0"><code>def forward(self, return_loss=True, **kwargs)
+</code></pre><p>所以我们需要重写模型forward函数, 把参数展开, 消除kwargs的出现.
+PS: 在pytorch 2.5.0里面, export函数已经支持kwargs的参数了.</p>
+<h3 id="问题3numpy数组转换错误">问题3：Numpy数组转换错误</h3>
+<p>错误堆栈</p>
+<pre tabindex="0"><code>Traceback (most recent call last):
+  File &quot;tools/test.py&quot;, line 314, in &lt;module&gt;
+    main()
+  File &quot;tools/test.py&quot;, line 261, in main
+    onnx_program = torch.onnx.export(model, onnx_input, &quot;model.onnx&quot;)
+  File &quot;/myenv/lib/python3.8/site-packages/torch/onnx/__init__.py&quot;, line 316, in export
+    return utils.export(model, args, f, export_params, verbose, training,
+  File &quot;/myenv/lib/python3.8/site-packages/torch/onnx/utils.py&quot;, line 107, in export
+    _export(model, args, f, export_params, verbose, training, input_names, output_names,
+  File &quot;/myenv/lib/python3.8/site-packages/torch/onnx/utils.py&quot;, line 724, in _export
+    _model_to_graph(model, args, verbose, input_names,
+  File &quot;/myenv/lib/python3.8/site-packages/torch/onnx/utils.py&quot;, line 493, in _model_to_graph
+    graph, params, torch_out, module = _create_jit_graph(model, args)
+  File &quot;/myenv/lib/python3.8/site-packages/torch/onnx/utils.py&quot;, line 437, in _create_jit_graph
+    graph, torch_out = _trace_and_get_graph_from_model(model, args)
+  File &quot;/myenv/lib/python3.8/site-packages/torch/onnx/utils.py&quot;, line 388, in _trace_and_get_graph_from_model
+    torch.jit._get_trace_graph(model, args, strict=False, _force_outplace=False, _return_inputs_states=True)
+  File &quot;/myenv/lib/python3.8/site-packages/torch/jit/_trace.py&quot;, line 1166, in _get_trace_graph
+    outs = ONNXTracedModule(f, strict, _force_outplace, return_inputs, _return_inputs_states)(*args, **kwargs)
+  File &quot;/myenv/lib/python3.8/site-packages/torch/nn/modules/module.py&quot;, line 1102, in _call_impl
+    return forward_call(*input, **kwargs)
+  File &quot;/myenv/lib/python3.8/site-packages/torch/jit/_trace.py&quot;, line 127, in forward
+    graph, out = torch._C._create_graph_by_tracing(
+  File &quot;/myenv/lib/python3.8/site-packages/torch/jit/_trace.py&quot;, line 121, in wrapper
+    out_vars, _ = _flatten(outs)
+RuntimeError: Only tuples, lists and Variables are supported as JIT inputs/outputs. Dictionaries and strings are also accepted, but their usage is not recommended. Here, received an input of unsupported type: numpy.ndarray
+</code></pre><p>错误发生在: 将模型转化成torch.jit.ScriptModule的过程中. 这里的信息比较明确, 不支持numpy.ndarray这种类型. 所以需要做如下的改动:</p>
+<pre tabindex="0"><code># occ_res = occ_res.cpu().numpy().astype(np.uint8) 
+occ_res = occ_res.to(torch.uint8)
+</code></pre><h3 id="问题4小心中间结果常量化">问题4：小心中间结果常量化</h3>
+<p>pytorch转成onnx的过程中需要注意两点:</p>
+<ol>
+<li>模型的输入尽量使用tensor类型</li>
+<li>任何基于input的中间计算结果也使用tensor类型</li>
+</ol>
+<p>我们已知转化是基于一组示例输入去进行的, pytorch会把示例输入带入到模型的forward函数中, 然后把整个模型结构转换成计算图. 假设有这么一个输入: torch.tensor(3). 然后forward过程中有一句代码是从tensor(3)转成int 3: a = torch.tensor(3).item(). 那么export过程无法记录tensor-&gt;int的转换, 于是只有a = 3被记录在模型中. 下次换一个input, 比如说torch.tensor(4), a仍然等于3, 这样就破坏了模型本身的结构.</p>
+<p>所幸的是, 如果转换的过程中可能出现常量化, pytorch会打印出相关的warning. 我们只需要依照warning去修正对应的代码就好了. 例如下面这样的warning：</p>
+<pre tabindex="0"><code>/flash_occ/FlashOCC/projects/mmdet3d_plugin/models/necks/view_transformer.py:340: TracerWarning: Using len to get tensor shape might cause the trace to be incorrect. Recommended usage would be tensor.shape[0]. Passing a tensor of different shape might lead to errors or silently give incorrect results.
+  if len(kept)==0:
+
+/flash_occ/FlashOCC/projects/mmdet3d_plugin/models/necks/view_transformer.py:361: TracerWarning: Using len to get tensor shape might cause the trace to be incorrect. Recommended usage would be tensor.shape[0]. Passing a tensor of different shape might lead to errors or silently give incorrect results.
+  if len(interval_starts)==0:
+
+/flash_occ/FlashOCC/projects/mmdet3d_plugin/models/necks/view_transformer.py:289: TracerWarning: Converting a tensor to a Python integer might cause the trace to be incorrect. We can't record the data flow of Python values, so this value will be treated as a constant in the future. This means that the trace might not generalize to other inputs!
+  bev_feat_shape=(depth.shape[0], int(self.grid_size[2]))
+</code></pre><p>Pytorch官方文档上有更详细的说明:
+Avoid NumPy and built-in Python types
+PyTorch models can be written using NumPy or Python types and functions, but during tracing, any variables of NumPy or Python types (rather than torch.Tensor) are converted to constants, which will produce the wrong result if those values should change depending on the inputs.
+<a href="https://docs.pytorch.org/docs/stable/onnx_torchscript.html">https://docs.pytorch.org/docs/stable/onnx_torchscript.html</a></p>
+<p>PS: List of Tensor, Tuple of Tensor似乎也是支持的.</p>
+<h3 id="问题5不支持的op">问题5：不支持的OP</h3>
+<p>在下面的调用栈里面, 遇到了&quot;不支持的OP&quot;的问题. 问题也比较清楚, bev_pool_v2是一个自定义的pytorch op, 由c++和cuda实现.</p>
+<pre tabindex="0"><code>forward(/flash_occ/FlashOCC/mmdetection3d/mmdet3d/models/detectors/base.py)
+-&gt; forward_test(/flash_occ/FlashOCC/projects/mmdet3d_plugin/models/detectors/bevdet.py)
+-&gt; simple_test(/flash_occ/FlashOCC/projects/mmdet3d_plugin/models/detectors/bevdet_occ.py)
+-&gt; extract_feat(/flash_occ/FlashOCC/projects/mmdet3d_plugin/models/detectors/bevdet_occ.py)
+-&gt; extract_img_feat(/flash_occ/FlashOCC/projects/mmdet3d_plugin/models/detectors/bevdet_occ.py)
+-&gt; forward(/flash_occ/FlashOCC/projects/mmdet3d_plugin/models/necks/view_transformer.py)
+-&gt; view_transform(/flash_occ/FlashOCC/projects/mmdet3d_plugin/models/necks/view_transformer.py)
+-&gt; view_transform_core(/flash_occ/FlashOCC/projects/mmdet3d_plugin/models/necks/view_transformer.py)
+-&gt; bev_pool_v2(/flash_occ/FlashOCC/projects/mmdet3d_plugin/models/necks/view_transformer.py)
+</code></pre><p>如果想解决这个问题, 需要做两件事:</p>
+<ol>
+<li>写一下bev_pool_v2(pytorch)-&gt;bev_pool_v2(onnx)的映射规则. 这个我理解应该是比较简单的. 因为最后onnx会转成openvino去部署, 所以不需要在onnx runtime层面上支持bev_pool_v2.</li>
+<li>在openvino那边支持bev_pool_v2这个op. 这个问题是初学者解决不了的Orz.</li>
+</ol>
+
+</content>
+<p>
+  
+</p>
+
+  </main>
+  <footer>Made with <a href="https://github.com/janraasch/hugo-bearblog/">Hugo ʕ•ᴥ•ʔ Bear</a>
+</footer>
+
+    
+</body>
+
+</html>

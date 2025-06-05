@@ -6,7 +6,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <link rel="shortcut icon" href="https://zhiwei-lii.github.io/images/favicon.png" />
-<title>Intel CPU上面的Linux大小核调度问题 | Hugo ʕ•ᴥ•ʔ Bear Blog</title>
+<title>Intel CPU上面的Linux大小核调度问题 | Miseeeeen&#39;s Blog</title>
 <meta name="title" content="Intel CPU上面的Linux大小核调度问题" />
 <meta name="description" content="自从12代Alder lake开始, Intel引入了大小核架构. 我最近也遇到了这样一个问题: 在Linux环境下面, 对于单线程的workload来说, 有时候它会运行在p-core, 有时候它会运行在e-core(即使p-core是idle的). 碰到这个问题的时候, 我是一脸懵逼的Orz. 因为印象中, 这类问题应该在adl刚出来的时候, 就已经受到广泛讨论了, 应该已经解决了才对, 毕竟我用的是kernel 6.1.
 目前, 第一个线索是: 这个问题只发生在virtualization的环境下面(我们的方案是基于acrn的https://github.com/projectacrn), 在baremetal下面没有这个问题.
@@ -23,7 +23,7 @@
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://zhiwei-lii.github.io/intel-cpu%E4%B8%8A%E9%9D%A2%E7%9A%84linux%E5%A4%A7%E5%B0%8F%E6%A0%B8%E8%B0%83%E5%BA%A6%E9%97%AE%E9%A2%98/" /><meta property="og:image" content="https://zhiwei-lii.github.io/images/share.png"/><meta property="article:section" content="blog" />
 <meta property="article:published_time" content="2024-07-30T12:43:52+08:00" />
-<meta property="article:modified_time" content="2024-07-30T12:43:52+08:00" /><meta property="og:site_name" content="Hugo ʕ•ᴥ•ʔ Bear" />
+<meta property="article:modified_time" content="2024-07-30T12:43:52+08:00" /><meta property="og:site_name" content="Miseeeeen&#39;s Blog" />
 
 
 
@@ -227,7 +227,7 @@
 
 <body>
   <header><a href="/" class="title">
-  <h2>Hugo ʕ•ᴥ•ʔ Bear Blog</h2>
+  <h2>Miseeeeen&#39;s Blog</h2>
 </a>
 <nav><a href="/">Home</a>
 

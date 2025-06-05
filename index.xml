@@ -1,13 +1,23 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Miseeeeen&#39;s Blog on Hugo ʕ•ᴥ•ʔ Bear Blog</title>
+    <title>Miseeeeen&#39;s Blog</title>
     <link>https://zhiwei-lii.github.io/</link>
-    <description>Recent content in Miseeeeen&#39;s Blog on Hugo ʕ•ᴥ•ʔ Bear Blog</description>
+    <description>Recent content on Miseeeeen&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-US</language>
-    <copyright>Copyright © 2020, Jane Doe.</copyright>
-    <lastBuildDate>Tue, 30 Jul 2024 12:43:52 +0800</lastBuildDate><atom:link href="https://zhiwei-lii.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 30 May 2025 08:13:49 +0800</lastBuildDate><atom:link href="https://zhiwei-lii.github.io/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>pytorch模型转换到onnx的踩坑记录</title>
+      <link>https://zhiwei-lii.github.io/pytorch%E6%A8%A1%E5%9E%8B%E8%BD%AC%E6%8D%A2%E5%88%B0onnx%E7%9A%84%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/</link>
+      <pubDate>Fri, 30 May 2025 08:13:49 +0800</pubDate>
+      
+      <guid>https://zhiwei-lii.github.io/pytorch%E6%A8%A1%E5%9E%8B%E8%BD%AC%E6%8D%A2%E5%88%B0onnx%E7%9A%84%E8%B8%A9%E5%9D%91%E8%AE%B0%E5%BD%95/</guid>
+      <description>作为AI初学者, 我在将FlashOcc模型从PyTorch移植到OpenVINO的过程中遇到了各种问题. 虽然仍然没有成功转成openvino, 但是本文会列出一些自己踩过的坑, 希望能帮助类似问题的开发者.
+环境准备  硬件：NVIDIA RTX 4090 模型：https://github.com/Yzichen/FlashOCC 软件：pytorch 1.10, cuda 11.1(软件版本和FlashOCC的需求对齐)  步骤概述  在 NVIDIA 4090 上运行FlashOcc 将 PyTorch 模型转换为 ONNX 将 ONNX 转换为 OpenVINO IR 在设备上进行 IR 推理(NPU、GPU)  阶段一：在RTX 4090上运行FlashOcc 问题1：CUDA求解器内部错误 错误堆栈
+Traceback (most recent call last): File &amp;quot;run_flashocc.py&amp;quot;, line 87, in &amp;lt;module&amp;gt; main() File &amp;quot;run_flashocc.py&amp;quot;, line 73, in main output = model(input_data) File &amp;quot;/opt/conda/lib/python3.8/site-packages/torch/nn/modules/module.py&amp;quot;, line 1102, in _call_impl return forward_call(*input, **kwargs) File &amp;quot;/project/models/flashocc.</description>
+    </item>
+    
     <item>
       <title>Intel CPU上面的Linux大小核调度问题</title>
       <link>https://zhiwei-lii.github.io/intel-cpu%E4%B8%8A%E9%9D%A2%E7%9A%84linux%E5%A4%A7%E5%B0%8F%E6%A0%B8%E8%B0%83%E5%BA%A6%E9%97%AE%E9%A2%98/</link>
